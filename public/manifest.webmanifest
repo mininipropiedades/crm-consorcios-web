@@ -1,0 +1,22 @@
+{
+  "name": "CRM Consorcios — Minini",
+  "short_name": "CRM Minini",
+  "description": "CRM privado de propietarios de Minini Propiedades",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fafafa",
+  "theme_color": "#1a1a1a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

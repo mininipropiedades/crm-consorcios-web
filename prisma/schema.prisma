@@ -1,0 +1,152 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// -------------- Usuarios --------------
+enum Rol {
+  admin
+  empleado
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  nombre        String
+  passwordHash  String
+  rol           Rol      @default(empleado)
+  activo        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  lastLoginAt   DateTime?
+
+  interacciones Interaccion[]
+}
+
+// -------------- Base del CRM (espejo del SQLite local) --------------
+model Consorcio {
+  id                   Int      @id @default(autoincrement())
+  codigoInterno        String   @unique
+  nombreConsorcio      String
+  identificadorCorto   String?
+  direccionEdificio    String?
+  localidadEdificio    String?
+  codPostalEdificio    String?
+  ultimaImportacion    DateTime?
+
+  ufs                  UnidadFuncional[]
+  estado               EstadoConsorcio?
+  exclusiones          ExclusionPropietario[]
+
+  @@index([codigoInterno])
+}
+
+model Propietario {
+  id                    Int      @id @default(autoincrement())
+  nombreCompletoRaw     String
+  nombreNormalizado     String
+  apellido              String?
+  nombres               String?
+  esConstructora        Boolean  @default(false)
+  esPersonaJuridica     Boolean  @default(false)
+  email                 String?
+  telefonosNormalizados String   @default("[]") // JSON array
+  telefonosRaw          String   @default("[]")
+
+  ufs                   UnidadFuncional[]
+  interacciones         Interaccion[]
+
+  @@index([nombreNormalizado])
+}
+
+model UnidadFuncional {
+  id                 Int      @id @default(autoincrement())
+  consorcio          Consorcio   @relation(fields: [consorcioId], references: [id])
+  consorcioId        Int
+  propietario        Propietario? @relation(fields: [propietarioId], references: [id])
+  propietarioId      Int?
+  numeroUf           String
+  ubicacion          String?
+  direccionPostal    String?
+  codPostalPostal    String?
+  localidadPostal    String?
+  provinciaPostal    String?
+  nivelAusentismo    String   @default("ausentista_externo")
+  fechaImportacion   DateTime @default(now())
+
+  interacciones      Interaccion[]
+
+  @@unique([consorcioId, numeroUf])
+  @@index([localidadPostal])
+  @@index([nivelAusentismo])
+}
+
+model EstadoConsorcio {
+  id                   Int        @id @default(autoincrement())
+  consorcio            Consorcio? @relation(fields: [consorcioId], references: [id])
+  consorcioId          Int?       @unique
+  codigoInterno        String
+  cantidadUfNotada     Int?
+  notaRaw              String?
+  noContactar          Boolean    @default(false)
+  administramos        Boolean?
+  estadoEdificio       String     @default("desconocido") // excelente|muy_bueno|bueno|normal|malo|desconocido
+  observaciones        String?
+  excepcionesContacto  String?
+  fechaImportacion     DateTime   @default(now())
+
+  @@index([codigoInterno])
+}
+
+model ExclusionPropietario {
+  id                 Int        @id @default(autoincrement())
+  consorcio          Consorcio  @relation(fields: [consorcioId], references: [id])
+  consorcioId        Int
+  patronExclusion    String
+  motivo             String
+  fecha              DateTime   @default(now())
+}
+
+// -------------- Interacciones (tracking: a quién llamó quién, cuándo, resultado) --------------
+enum ResultadoInteraccion {
+  pendiente
+  contactado
+  no_atendio
+  no_le_interesa
+  interesado_vender
+  interesado_alquilar_temporada
+  no_contactar_pedido
+  info_actualizada
+}
+
+model Interaccion {
+  id            String   @id @default(cuid())
+  propietario   Propietario @relation(fields: [propietarioId], references: [id])
+  propietarioId Int
+  uf            UnidadFuncional? @relation(fields: [ufId], references: [id])
+  ufId          Int?
+  usuario       User     @relation(fields: [usuarioId], references: [id])
+  usuarioId     String
+  tipo          String   // "llamada" | "whatsapp" | "mail" | "nota"
+  resultado     ResultadoInteraccion @default(pendiente)
+  notas         String?
+  fecha         DateTime @default(now())
+
+  @@index([propietarioId])
+  @@index([usuarioId])
+  @@index([fecha])
+}
+
+// -------------- Snapshots mensuales (histórico) --------------
+model Snapshot {
+  id                      Int      @id @default(autoincrement())
+  consorcioId             Int
+  fechaSnapshot           DateTime
+  hashContenido           String
+  contenidoJson           String   // JSON serializado
+  cambiosDetectadosJson   String?
+}

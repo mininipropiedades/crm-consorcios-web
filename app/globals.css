@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    font-feature-settings: "cv11", "ss01";
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition;
+  }
+  .btn-primary {
+    @apply btn bg-minini-black text-white hover:opacity-90;
+  }
+  .btn-ghost {
+    @apply btn text-minini-gray hover:bg-minini-border;
+  }
+  .btn-red {
+    @apply btn bg-minini-red text-white hover:opacity-90;
+  }
+  .card {
+    @apply bg-minini-card border border-minini-border rounded-xl p-4 shadow-sm;
+  }
+  .input {
+    @apply w-full px-3 py-2 border border-minini-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-minini-black;
+  }
+  .label {
+    @apply block text-sm font-medium text-minini-gray mb-1;
+  }
+  .tag {
+    @apply inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full;
+  }
+  .tag-green { @apply tag bg-green-100 text-green-800; }
+  .tag-amber { @apply tag bg-amber-100 text-amber-800; }
+  .tag-red { @apply tag bg-red-100 text-red-800; }
+  .tag-gray { @apply tag bg-gray-100 text-gray-700; }
+  .tag-blue { @apply tag bg-blue-100 text-blue-800; }
+}
