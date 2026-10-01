@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, type ReactElement } from "react";
 
-type NavItem = { href: string; label: string; icon: (p: { className?: string }) => JSX.Element };
+type NavItem = { href: string; label: string; icon: (p: { className?: string }) => ReactElement };
 
 type Props = {
   user: { email: string; nombre: string; rol: "admin" | "empleado" };
