@@ -31,21 +31,23 @@ export default async function Page() {
   `);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-bold">Inversores</h1>
-        <p className="text-sm text-minini-gray">Propietarios con 2 o más UFs. {raw.length} detectados.</p>
+        <p className="text-sm mt-1" style={{ color: "var(--panel-nav-item)" }}>
+          Propietarios con 2 o más unidades funcionales — {raw.length} detectados.
+        </p>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm bg-white border border-minini-border">
-          <thead className="text-left">
+      <div className="card p-0 overflow-x-auto">
+        <table className="data-table">
+          <thead>
             <tr>
-              <th className="p-2">Propietario</th>
-              <th className="p-2 text-right">UFs</th>
-              <th className="p-2">Teléfono</th>
-              <th className="p-2">Email</th>
-              <th className="p-2">Consorcios</th>
+              <th>Propietario</th>
+              <th className="text-right">UFs</th>
+              <th>Teléfonos</th>
+              <th>Email</th>
+              <th>En consorcios</th>
             </tr>
           </thead>
           <tbody>
@@ -53,12 +55,27 @@ export default async function Page() {
               let tels: string[] = [];
               try { tels = r.tels ? JSON.parse(r.tels) : []; } catch {}
               return (
-                <tr key={r.id} className="border-b border-minini-border/60 align-top">
-                  <td className="p-2 font-medium">{r.nombre}</td>
-                  <td className="p-2 text-right font-bold">{r.cantidad}</td>
-                  <td className="p-2">{tels.join(", ") || "—"}</td>
-                  <td className="p-2">{r.email || "—"}</td>
-                  <td className="p-2 text-xs text-minini-gray">{r.consorcios}</td>
+                <tr key={r.id}>
+                  <td><div className="font-semibold">{r.nombre}</div></td>
+                  <td className="text-right">
+                    <span className="text-lg font-bold tnum" style={{ color: "#e31e24" }}>{r.cantidad}</span>
+                  </td>
+                  <td className="whitespace-nowrap">
+                    {tels.length > 0 ? (
+                      <div className="flex flex-col gap-0.5">
+                        {tels.map((t, j) => (
+                          <a key={j} href={`https://wa.me/${t.replace("+", "")}`} target="_blank"
+                            className="text-sm hover:underline" style={{ color: "#e31e24" }}>
+                            {t}
+                          </a>
+                        ))}
+                      </div>
+                    ) : <span style={{ color: "var(--panel-muted)" }}>—</span>}
+                  </td>
+                  <td className="text-xs">
+                    {r.email ? <a href={`mailto:${r.email.split(";")[0]}`} className="hover:underline">{r.email.split(";")[0]}</a> : <span style={{ color: "var(--panel-muted)" }}>—</span>}
+                  </td>
+                  <td className="text-xs" style={{ color: "var(--panel-nav-item)" }}>{r.consorcios}</td>
                 </tr>
               );
             })}

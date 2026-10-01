@@ -8,17 +8,32 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        minini: {
-          black: "#1a1a1a",
-          red: "#d4241e",
-          gray: "#4a4a4a",
-          bg: "#fafafa",
-          card: "#ffffff",
-          border: "#e5e5e5",
+        brand: {
+          50:  "#fff0f0",
+          100: "#ffe0e0",
+          200: "#ffc0c0",
+          300: "#ff8080",
+          400: "#ff4444",
+          500: "#e31e24",
+          600: "#c41920",
+          700: "#a0141a",
+          800: "#7a1013",
+          900: "#5a0c0e",
+        },
+        sand: "#f6f3ec",
+        panel: {
+          950: "#0a0a0a",
+          900: "#111111",
+          800: "#1a1a1a",
+          700: "#222222",
+          600: "#2a2a2a",
+          500: "#333333",
+          400: "#444444",
         },
       },
       fontFamily: {
-        sans: ["ui-sans-serif", "system-ui", "-apple-system", "sans-serif"],
+        sans:    ["system-ui", "-apple-system", "sans-serif"],
+        display: ["system-ui", "-apple-system", "sans-serif"],
       },
     },
   },

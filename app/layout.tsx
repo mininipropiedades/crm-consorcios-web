@@ -15,19 +15,19 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  themeColor: "#1a1a1a",
+  themeColor: "#111111",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+const THEME_INIT = `(function(){try{var t=localStorage.getItem('crm-consorcios-theme');if(t==='light'||t==='dark'){document.getElementById('crm-root').setAttribute('data-theme',t);}}catch(e){}})();`;
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
-      <body className="bg-minini-bg text-minini-black antialiased min-h-screen">
-        {children}
+      <body>
+        <div id="crm-root" data-theme="dark">
+          {children}
+        </div>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
       </body>
     </html>
   );

@@ -36,15 +36,17 @@ export default async function Page() {
   const users = await prisma.user.findMany({ orderBy: { createdAt: "asc" } });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-bold">Usuarios</h1>
-        <p className="text-sm text-minini-gray">Alta y baja de usuarios con acceso al CRM. Solo admin.</p>
+        <p className="text-sm mt-1" style={{ color: "var(--panel-nav-item)" }}>
+          Alta y baja de usuarios con acceso al CRM. Solo admin.
+        </p>
       </div>
 
-      <div className="card">
-        <h2 className="font-semibold mb-3">Nuevo usuario</h2>
-        <form action={crearUsuario} className="grid grid-cols-1 md:grid-cols-4 gap-3">
+      <details className="card" open>
+        <summary className="cursor-pointer font-bold">Nuevo usuario</summary>
+        <form action={crearUsuario} className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-4">
           <div>
             <label className="label">Email</label>
             <input name="email" type="email" required className="input" />
@@ -60,43 +62,43 @@ export default async function Page() {
           <div>
             <label className="label">Rol</label>
             <select name="rol" className="input" defaultValue="empleado">
-              <option value="empleado">Empleado (solo consulta)</option>
-              <option value="admin">Admin (control total)</option>
+              <option value="empleado">Empleado (consulta)</option>
+              <option value="admin">Admin</option>
             </select>
           </div>
           <div className="md:col-span-4">
             <button className="btn-primary" type="submit">Crear o actualizar</button>
           </div>
         </form>
-      </div>
+      </details>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm bg-white border border-minini-border">
-          <thead className="text-left">
+      <div className="card p-0 overflow-x-auto">
+        <table className="data-table">
+          <thead>
             <tr>
-              <th className="p-2">Nombre</th>
-              <th className="p-2">Email</th>
-              <th className="p-2">Rol</th>
-              <th className="p-2">Último login</th>
-              <th className="p-2">Estado</th>
-              <th className="p-2"></th>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Rol</th>
+              <th>Último login</th>
+              <th>Estado</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
             {users.map((u) => (
-              <tr key={u.id} className="border-b border-minini-border/60">
-                <td className="p-2 font-medium">{u.nombre}</td>
-                <td className="p-2">{u.email}</td>
-                <td className="p-2">
-                  {u.rol === "admin" ? <span className="tag-blue">admin</span> : <span className="tag-gray">empleado</span>}
+              <tr key={u.id}>
+                <td className="font-semibold">{u.nombre}</td>
+                <td>{u.email}</td>
+                <td>
+                  {u.rol === "admin" ? <span className="tag-red">admin</span> : <span className="tag-gray">empleado</span>}
                 </td>
-                <td className="p-2 text-xs text-minini-gray">
+                <td className="text-xs" style={{ color: "var(--panel-nav-item)" }}>
                   {u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleString("es-AR") : "—"}
                 </td>
-                <td className="p-2">
+                <td>
                   {u.activo ? <span className="tag-green">activo</span> : <span className="tag-red">suspendido</span>}
                 </td>
-                <td className="p-2">
+                <td>
                   <form action={toggleActivo}>
                     <input type="hidden" name="id" value={u.id} />
                     <input type="hidden" name="activo" value={String(u.activo)} />

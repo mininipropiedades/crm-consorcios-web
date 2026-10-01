@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -21,10 +22,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<SP>
       },
     },
   };
-
-  if (localidad) {
-    where.localidadPostal = { contains: localidad, mode: "insensitive" };
-  }
+  if (localidad) where.localidadPostal = { contains: localidad, mode: "insensitive" };
 
   const rows = await prisma.unidadFuncional.findMany({
     where,
@@ -37,69 +35,83 @@ export default async function Page({ searchParams }: { searchParams: Promise<SP>
   });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold">Captación</h1>
-        <p className="text-sm text-minini-gray">
-          Ausentistas con teléfono en consorcios de calidad bueno/muy bueno/excelente que SÍ se pueden llamar.
-          Base natural para campaña de temporada y venta.
+        <h1 className="text-2xl font-bold">Oportunidades de captación</h1>
+        <p className="text-sm mt-1" style={{ color: "var(--panel-nav-item)" }}>
+          Ausentistas con teléfono en edificios de calidad bueno, muy bueno o excelente.
         </p>
       </div>
 
       <form className="card flex flex-wrap gap-3 items-end" method="GET">
-        <div className="flex-1 min-w-[200px]">
+        <div className="flex-1 min-w-[220px]">
           <label className="label">Filtrar por localidad del propietario</label>
           <input name="localidad" defaultValue={localidad} className="input" placeholder="CABA, Hurlingham, La Plata..." />
         </div>
         <button className="btn-primary" type="submit">Filtrar</button>
-        {localidad && <a className="btn-ghost" href="/captacion">Limpiar</a>}
+        {localidad && <Link className="btn-ghost" href="/captacion">Limpiar</Link>}
       </form>
 
-      <div className="text-sm text-minini-gray">
+      <div className="text-sm" style={{ color: "var(--panel-nav-item)" }}>
         {rows.length} oportunidades.
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm bg-white border border-minini-border">
-          <thead className="text-left">
+      <div className="card p-0 overflow-x-auto">
+        <table className="data-table">
+          <thead>
             <tr>
-              <th className="p-2">Propietario</th>
-              <th className="p-2">Teléfono</th>
-              <th className="p-2">Vive en</th>
-              <th className="p-2">Consorcio</th>
-              <th className="p-2">UF</th>
-              <th className="p-2">Edificio</th>
-              <th className="p-2">Avisos</th>
+              <th>Propietario</th>
+              <th>Teléfonos</th>
+              <th>Vive en</th>
+              <th>Consorcio</th>
+              <th>UF</th>
+              <th>Edificio</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((r) => {
               let tels: string[] = [];
               try { tels = r.propietario?.telefonosNormalizados ? JSON.parse(r.propietario.telefonosNormalizados) : []; } catch {}
-              const admin = r.consorcio.estado?.administramos;
-              const avisos: string[] = [];
-              if (admin === false) avisos.push("No administramos — hablar como inmobiliaria");
-              if (r.consorcio.estado?.observaciones) avisos.push(r.consorcio.estado.observaciones);
               return (
-                <tr key={r.id} className="border-b border-minini-border/60 align-top">
-                  <td className="p-2 font-medium">{r.propietario?.nombreNormalizado}</td>
-                  <td className="p-2 whitespace-nowrap">{tels.join(", ")}</td>
-                  <td className="p-2 text-sm">{r.localidadPostal || "—"}</td>
-                  <td className="p-2 text-xs">
-                    {r.consorcio.codigoInterno} · {r.consorcio.identificadorCorto || r.consorcio.nombreConsorcio}
+                <tr key={r.id}>
+                  <td>
+                    <div className="font-semibold">{r.propietario?.nombreNormalizado}</div>
+                    {r.propietario?.email && (
+                      <div className="text-xs" style={{ color: "var(--panel-nav-item)" }}>
+                        {r.propietario.email.split(";")[0]}
+                      </div>
+                    )}
                   </td>
-                  <td className="p-2">{r.numeroUf} {r.ubicacion ? `(${r.ubicacion})` : ""}</td>
-                  <td className="p-2"><span className="tag-green">{r.consorcio.estado?.estadoEdificio}</span></td>
-                  <td className="p-2 text-xs text-amber-700">
-                    {avisos.length === 0 ? <span className="text-minini-gray">—</span> :
-                      avisos.map((a, i) => <div key={i}>{a}</div>)}
+                  <td className="whitespace-nowrap">
+                    <div className="flex flex-col gap-0.5">
+                      {tels.map((t, j) => (
+                        <a key={j} href={`https://wa.me/${t.replace("+", "")}`} target="_blank"
+                          className="text-sm hover:underline" style={{ color: "#e31e24" }}>
+                          {t}
+                        </a>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="text-sm">{r.localidadPostal || "—"}</td>
+                  <td>
+                    <Link href={`/consorcios/${r.consorcio.codigoInterno}`} className="hover:underline">
+                      <span className="text-[11px] font-mono mr-1" style={{ color: "var(--panel-nav-item)" }}>#{r.consorcio.codigoInterno}</span>
+                      {r.consorcio.identificadorCorto || r.consorcio.nombreConsorcio}
+                    </Link>
+                  </td>
+                  <td className="text-xs font-mono">
+                    {r.numeroUf}
+                    {r.ubicacion && <span style={{ color: "var(--panel-nav-item)" }}> · {r.ubicacion}</span>}
+                  </td>
+                  <td>
+                    <span className="tag-green">{r.consorcio.estado?.estadoEdificio}</span>
                   </td>
                 </tr>
               );
             })}
             {rows.length === 0 && (
-              <tr><td colSpan={7} className="p-6 text-center text-minini-gray">
-                No hay resultados con el filtro.
+              <tr><td colSpan={6} className="text-center py-12" style={{ color: "var(--panel-nav-item)" }}>
+                No hay oportunidades con esos filtros.
               </td></tr>
             )}
           </tbody>
